@@ -14,15 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import backEndQuickBank.exchangeAPI.model.ExchangeModel;
+
 @RestController
 @RequestMapping(path = "/convertion")
 public class ExchangeEndPoint {
 	
 	@GetMapping
-	public JsonNode getConnection(
+	public ExchangeModel getConnection(
 			@RequestParam(name ="us") String unit,
 			@RequestParam("ud") String unitDest) throws Exception 
 	{
+		ExchangeModel model = new ExchangeModel();
+		
+		model.setSourceUnit(unit.toUpperCase());
+		model.setToUnit(unitDest.toUpperCase());
+		
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create("https://exchangerate-api.p.rapidapi.com/rapid/latest/"+unit))
 				.header("X-RapidAPI-Host", "exchangerate-api.p.rapidapi.com")
@@ -41,10 +48,12 @@ public class ExchangeEndPoint {
 		
 		JsonNode jsonresultat2 = jsonresultat.get(unitDest.toUpperCase());
 		
-		double t=jsonresultat2.asDouble();
-		System.out.println("le taux est "+t);
+		double taux=jsonresultat2.asDouble();
+		System.out.println("le taux est "+ taux);
 		
-		return jsonresultat2;
+		model.setTaux(taux);
+		
+		return model;
 	}
 	
 }
